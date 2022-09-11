@@ -1,0 +1,98 @@
+* {
+  font-family: "Arial";
+}
+
+::-webkit-scrollbar {
+  display: none;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+.rightBar {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width:  min-content;
+  position : sticky;
+  top : 0px;
+  float: right;
+}
+    
+
+.albumsContainer {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: horizontal;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: row;
+          flex-direction: row;
+  -webkit-box-pack: space-evenly;
+      -ms-flex-pack: space-evenly;
+          justify-content: space-evenly;
+  -ms-flex-wrap: wrap;
+      flex-wrap: wrap;
+}
+
+.album {
+  cursor: pointer;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  -webkit-box-pack: start;
+      -ms-flex-pack: start;
+          justify-content: start;
+  border-radius: 0.5rem;
+  -webkit-box-shadow: 0 3px 7px #8888;
+          box-shadow: 0 3px 7px #8888;
+  margin: 2rem 2rem 2rem 2rem;
+  width: 12rem;
+  -webkit-transform: scale(1);
+          transform: scale(1);
+  -webkit-transition: -webkit-transform 400ms;
+  transition: -webkit-transform 400ms;
+  transition: transform 400ms;
+  transition: transform 400ms, -webkit-transform 400ms;
+}
+
+.playerAndCharacterUi {
+  display: none;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+}
+
+.playerAndCharacterUi img {
+  width: 16rem;
+  height: 16rem;
+}
+
+.album:hover {
+  -webkit-transform: scale(1.15);
+          transform: scale(1.15);
+}
+
+.active {
+  background-color: #0d6efd;
+  color : #fff;
+}
+
+.album img {
+  object-fit: contain;
+  -webkit-box-flex: 1;
+      -ms-flex: 1;
+          flex: 1;
+  margin: 0.5rem;
+}
+
+
+.album .text {
+  text-align: center;
+}
+/*# sourceMappingURL=index.css.map */
