@@ -7,6 +7,8 @@ const playerUI = document.getElementsByClassName("player")[0];
 const volUp = document.getElementsByClassName("player__volup")[0];
 const volDown = document.getElementsByClassName("player__voldown")[0];
 const controlsBg = document.getElementsByClassName("player__controls-bg")[0];
+const downButton = document.getElementById('down');
+const upButton = document.getElementById('up');
 var currentElement = null;
 const playPauseButton = document.getElementById('playPauseButton')
 const PlayPauseHolder = document.getElementById('playPauseHolder')
@@ -22,7 +24,7 @@ function Element(name, audio, image, path, id) {
 }
 
 const stories = new Promise((resolve, reject) => {
-  resolve(window.electronAPI.getStories());
+  resolve(window.electronAPI.getElements());
 });
 
 stories.then((value) => {
@@ -38,7 +40,6 @@ player.volume = 0.5;
 function initStories(storie) {
   album = '<div class="album" id=' + storie.id + '><img src="' + storie.image + '"></img><div class="text">' + storie.name + '</div></div>';
   albums.insertAdjacentHTML('beforeend', album);
-  storiesValue.push(storie);
   //ajout des évènements
   storieButton = document.getElementById(storie.id)
 
@@ -123,3 +124,17 @@ function cleanStories() {
     currentAlbum = -1;
   }
 }
+
+downButton.addEventListener('click', () => {
+  window.scrollTo(0, window.scrollY + storieButton.offsetHeight); //ajout de la taille d'un album
+});
+upButton.addEventListener('click', () => {
+  window.scrollTo(0, window.scrollY - storieButton.offsetHeight);
+});
+
+// window.addEventListener('resize', placeUi);
+
+// function placeUi() {
+//   document.getElementsByClassName("rightBar")[0].style.top = document.getElementById('header').offsetHeight + "px";
+//   document.getElementsByClassName("rightBar")[0].style.height = window.innerHeight - document.getElementById('header').offsetHeight + "px";
+// }

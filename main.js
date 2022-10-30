@@ -1,4 +1,4 @@
-const { app, BrowserView, BrowserWindow, dialog, ipcMain, Menu } = require('electron')
+const { app, BrowserView, BrowserWindow, webContents, dialog, ipcMain, Menu } = require('electron')
 const path = require('path')
 const url = require('url')
 const fs = require('fs');
@@ -36,29 +36,28 @@ function createWindow() {
   win.maximize();
   win.setAlwaysOnTop(true, 'screen-saver');
   process.env.MAIN_WINDOW_ID = win.id;
+  //win.webContents.openDevTools();
   //Pour utiliser BookCreator
   win.webContents.setUserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.92 Safari/537.36");
   win.loadFile('pages/base_interface.html')
-
   //Page du contenu 
   const view = new BrowserView({
     webPreferences: { 
       devTools: true, 
-      contextIsolation: true, 
+      //contextIsolation: true, 
       preload: path.join(app.getAppPath(), 'preload.js') 
     }
   });
   win.setBrowserView(view)
+  process.env.VIEW_WINDOW_ID = view.webContents.id;
   view.setBounds({ x: 0, y: 90, width: win.getSize()[0], height: win.getSize()[1] - 90 })
   view.webContents.openDevTools();
-  if (currentPath == "stories") {
-  view.webContents.loadFile('pages/stories.html')
-  }
-  else if (currentPath == "musics") {
-    view.webContents.loadFile('pages/musics.html')
+  getMainWindow().webContents.send('choose-content', currentPath);
+ if (currentPath == "books") {
+    view.webContents.loadFile('pages/books.html')
   }
   else {
-    view.webContents.loadFile('pages/books.html')
+    view.webContents.loadFile('pages/storiesAndMusics.html')
   }
   //nativeTheme.themeSource = 'light'
 }
@@ -67,16 +66,19 @@ function createWindow() {
 
 app.whenReady().then(() => {
   ipcMain.on('set-title', handleSetTitle)
-  ipcMain.on('choose-storie', handleChooseStorie)
   ipcMain.handle('openFile', handleFileOpen)
   ipcMain.handle('get-current-path', handleGetCurrentPath)
-  ipcMain.handle('get-stories', handleGetStories)
-  ipcMain.handle('get-test', handleTest)
+  ipcMain.handle('get-elements', handleGetElements)
+  ipcMain.handle('get-test', handleGetTest)
   ipcMain.on('set-current-path', handleSetCurrentPath)
+  ipcMain.on('set-content', handleSetContent)
   ipcMain.on('require-init', init)
   ipcMain.on('close', handleClose)
   init()
   createWindow()
+  getMainWindow().webContents.once('dom-ready', () => {
+    getMainWindow().webContents.send('choose-content', currentPath);
+  });
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow()
   })
@@ -96,18 +98,17 @@ function handleChooseStorie(event, id) {
   console.log(currentPath + id + " choosed");
 }
 
-function handleTest(event) {
-  console.log("test Passed");
-}
-
 function handleGetCurrentPath(event) {
   return currentPath;
 }
 
-function handleGetStories(event) {
-  return initElements("stories");
+function handleGetElements(event) {
+  return initElements(currentPath);
 }
 
+function handleGetTest(event) {
+  console.log("test");
+}
 function handleSetCurrentPath(event, newPath) {
   currentPath = newPath;
   console.log("currentPath changed to " + currentPath);
@@ -223,7 +224,6 @@ function findImg(directory) { //give the audio file stored in a storie absolute 
   if (files[0] == undefined) {
     throw 'No compatible image file found'
   }
-  //console.log(files);
   return pathToFileURL(path.join(directory, files[0])).href;
 }
 
@@ -241,7 +241,6 @@ function findAudio(directory) { //give the audio file stored in a storie absolut
   if (files[0] == undefined) {
     throw 'No compatible audio file found'
   }
-  //console.log(files);
   return pathToFileURL(path.join(directory, files[0])).href;
 }
 
@@ -255,14 +254,25 @@ function createLibrary() {
   }
 }
 
-
-
 const getMainWindow = () => {
   const ID = process.env.MAIN_WINDOW_ID * 1;
   return BrowserWindow.fromId(ID)
+}
+
+const getViewContent = () => {
+  const ID = process.env.VIEW_WINDOW_ID * 1;
+  return webContents.fromId(ID)
 }
 
 function handleClose()
  {
   exit(0);
  }
+
+function handleSetContent(event, content) {
+  console.log("so far so good")
+  currentPath = content;
+  getMainWindow().webContents.send('choose-content', currentPath);
+  getViewContent().loadFile('pages/storiesAndMusics.html');
+  
+}
