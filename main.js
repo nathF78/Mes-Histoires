@@ -49,6 +49,7 @@ function createWindow() {
   win.maximize();
   win.setAlwaysOnTop(true, 'screen-saver');
   process.env.MAIN_WINDOW_ID = win.id;
+  win.webContents.setUserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.92 Safari/537.36");
   win.loadFile('index.html')
 }
 
@@ -80,6 +81,7 @@ function handleSetTitle(event, title) {
   const win = BrowserWindow.fromWebContents(webContents)
   win.setTitle(title)
 }
+
 
 
 function handleChooseStorie(event, id) {
