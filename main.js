@@ -1,4 +1,4 @@
-const { app, BrowserWindow, dialog, ipcMain, Menu } = require('electron')
+const { app, BrowserView, BrowserWindow, dialog, ipcMain, Menu } = require('electron')
 const path = require('path')
 const url = require('url')
 const fs = require('fs');
@@ -15,24 +15,12 @@ var currentPath = "stories";
 const homePath = app.getPath('home');
 var librariePath = path.join(homePath, 'Mes Histoires');
 
-function Storie(name, audio, image, path, id) {
+function Element(name, audio, image, path, id) {
   this.name = name;
   this.audio = audio;
   this.image = image;
   this.path = path;
   this.id = id;
-
-  /* this.job;
-
-  this.setName = function(name)
-  {
-      this.name = name;
-  }
-
-  this.getName = function()
-  {
-      return this.name;
-  } */
 }
 
 function createWindow() {
@@ -45,13 +33,36 @@ function createWindow() {
       preload: path.join(__dirname, 'preload.js')
     }
   })
-  //win.webContents.openDevTools();
   win.maximize();
   win.setAlwaysOnTop(true, 'screen-saver');
   process.env.MAIN_WINDOW_ID = win.id;
+  //Pour utiliser BookCreator
   win.webContents.setUserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.92 Safari/537.36");
-  win.loadFile('pages/index.html')
+  win.loadFile('pages/base_interface.html')
+
+  //Page du contenu 
+  const view = new BrowserView({
+    webPreferences: { 
+      devTools: true, 
+      contextIsolation: true, 
+      preload: path.join(app.getAppPath(), 'preload.js') 
+    }
+  });
+  win.setBrowserView(view)
+  view.setBounds({ x: 0, y: 90, width: win.getSize()[0], height: win.getSize()[1] - 90 })
+  view.webContents.openDevTools();
+  if (currentPath == "stories") {
+  view.webContents.loadFile('pages/stories.html')
+  }
+  else if (currentPath == "musics") {
+    view.webContents.loadFile('pages/musics.html')
+  }
+  else {
+    view.webContents.loadFile('pages/books.html')
+  }
+  //nativeTheme.themeSource = 'light'
 }
+
 
 
 app.whenReady().then(() => {
@@ -59,14 +70,13 @@ app.whenReady().then(() => {
   ipcMain.on('choose-storie', handleChooseStorie)
   ipcMain.handle('openFile', handleFileOpen)
   ipcMain.handle('get-current-path', handleGetCurrentPath)
+  ipcMain.handle('get-stories', handleGetStories)
+  ipcMain.handle('get-test', handleTest)
   ipcMain.on('set-current-path', handleSetCurrentPath)
   ipcMain.on('require-init', init)
   ipcMain.on('close', handleClose)
-
+  init()
   createWindow()
-  getMainWindow().webContents.once('dom-ready', () => {
-    init();
-  });
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow()
   })
@@ -82,14 +92,20 @@ function handleSetTitle(event, title) {
   win.setTitle(title)
 }
 
-
-
 function handleChooseStorie(event, id) {
   console.log(currentPath + id + " choosed");
 }
 
+function handleTest(event) {
+  console.log("test Passed");
+}
+
 function handleGetCurrentPath(event) {
   return currentPath;
+}
+
+function handleGetStories(event) {
+  return initElements("stories");
 }
 
 function handleSetCurrentPath(event, newPath) {
@@ -109,12 +125,17 @@ async function handleFileOpen() {
 function init() {
 
   if (fs.existsSync(librariePath)) { // Do something }
-    let stories = initStories();
+    let stories = initElements("stories");
+    let musics = initElements("musics");
+    console.log("\nLes histoires suivantes ont étés chargées :\n");
     console.log(stories);
-    for (let i = 0; i < stories.length; i++) {
-      console.log("loading " + stories[i].name)
-      getMainWindow().webContents.send('add-storie', stories[i])
-    }
+    console.log("\nLes musiques suivantes ont étés chargées :\n");
+    console.log(musics);
+    
+    // for (let i = 0; i < stories.length; i++) {
+    //   console.log("loading " + stories[i].name)
+    //   //getMainWindow().webContents.send('add-storie', stories[i])
+    // }
   }
   else {
     getMainWindow().setAlwaysOnTop(false);
@@ -144,33 +165,32 @@ function init() {
 
 }
 
-
-function initStories() {
+//create a tab with the requested elements (stories or musics)
+function initElements(element) {
   //génération du tableau des histoires
   try {
-    let stories = readDirectory(currentPath);
-    for (let i = 0; i < stories.length; i++) {
-      let storiePath = path.join(librariePath, currentPath, stories[i]);
-      var storieName = stories[i];
-      stories[i] = new Storie;
-      stories[i].name = storieName;
-      stories[i].path = storiePath;
-      stories[i].id = i;
+    var elements = readDirectory(element);
+    for (let i = 0; i < elements.length; i++) {
+      var elementName = elements[i];
+      elements[i] = new Element;
+      elements[i].name = elementName;
+      elements[i].path = path.join(librariePath, element, elementName);
+      elements[i].id = i;
 
       try {
-        stories[i].audio = findAudio(storiePath);
+        elements[i].audio = findAudio(elements[i].path);
       } catch (e) {
         console.error(e);
       }
 
       try {
-        stories[i].image = findImg(storiePath);
+        elements[i].image = findImg(elements[i].path);
       } catch (e) {
         console.error(e);
       }
 
     }
-    return stories;
+    return elements;
   } catch (e) {
     console.error(e);
   }
@@ -203,7 +223,7 @@ function findImg(directory) { //give the audio file stored in a storie absolute 
   if (files[0] == undefined) {
     throw 'No compatible image file found'
   }
-  console.log(files);
+  //console.log(files);
   return pathToFileURL(path.join(directory, files[0])).href;
 }
 
@@ -221,7 +241,7 @@ function findAudio(directory) { //give the audio file stored in a storie absolut
   if (files[0] == undefined) {
     throw 'No compatible audio file found'
   }
-  console.log(files);
+  //console.log(files);
   return pathToFileURL(path.join(directory, files[0])).href;
 }
 

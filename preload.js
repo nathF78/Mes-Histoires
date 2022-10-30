@@ -20,6 +20,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
     close : () => ipcRenderer.send('close'),
     openFile: () => ipcRenderer.invoke('openFile'),
     getCurrentPath: () => ipcRenderer.invoke('get-current-path'),
+    getStories: () => ipcRenderer.invoke('get-stories'),
+    getTest: () => ipcRenderer.invoke('get-test'),
     onUpdateCounter: (callback) => ipcRenderer.on('update-counter', callback),
     onAddStorie: (callback) => ipcRenderer.on('add-storie', callback),
 
