@@ -19,6 +19,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     setContent: (content) => ipcRenderer.send('set-content', content),
     chooseStorie: (id) => ipcRenderer.send('choose-storie', id),
     close : () => ipcRenderer.send('close'),
+    askToQuit: (value) => ipcRenderer.send('ask-to-quit', value),
     openFile: () => ipcRenderer.invoke('openFile'),
     getCurrentPath: () => ipcRenderer.invoke('get-current-path'),
     getElements: () => ipcRenderer.invoke('get-elements'),
@@ -27,5 +28,4 @@ contextBridge.exposeInMainWorld('electronAPI', {
     getTest: () => ipcRenderer.invoke('get-test'),
     onChooseContent: (callback) => ipcRenderer.on('choose-content', callback),
     onAddStorie: (callback) => ipcRenderer.on('add-storie', callback),
-
 })
