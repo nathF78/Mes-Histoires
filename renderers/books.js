@@ -24,16 +24,7 @@ books.then((value) => {
 
 //ajout des histoires
 function initStories(storie) {
-  album =
-    '<div class="album" href=' +
-    storie.path +
-    " id=" +
-    storie.id +
-    '><img src="' +
-    storie.image +
-    '"></img><div class="text">' +
-    storie.name +
-    "</div></div>";
+  album = '<a href="'+storie.path+'" style = "color : #000000; text-decoration: none;"><div class="album" id=' + storie.id + '><img src="' + storie.image + '"></img><div class="text">' + storie.name + '</div></div></a>';
   albums.insertAdjacentHTML("beforeend", album);
   //ajout des évènements
   storieButton = document.getElementById(storie.id);
@@ -46,11 +37,8 @@ function initStories(storie) {
     currentAlbum = storie.id;
     currentElement = storie;
     console.log(storie.id);
-    player.pause();
-    player.src = storie.audio;
     window.electronAPI.chooseStorie(storie.id);
-    player.load();
-    player.play();
+
   });
 }
 

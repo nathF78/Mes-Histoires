@@ -202,22 +202,23 @@ function initElements(element) {
   //génération du tableau des histoires
 
   if (element == "books") {
-    let books = Array(Element);
+    let books = Array();
 
-    books.push = new Element(
+    books.push(new Element(
+      "Le Loup et les 7 chevraux",
       "test",
-      "test",
-      "test.png",
+      "/Users/nathan/Desktop/Capture\ d’écran\ 2022-10-31\ à\ 17.42.40.png",
       "https://read.bookcreator.com/K5pvkfQy5BbPNtOEhAXgI70Psei2/R4pOnl-4S5KRHeKToP3Hhw",
       0
-    );
-    books.push = new Element(
-      "test",
+    ));
+    books.push(new Element(
+      "Le Loup et les 7 chevraux 2",
       "test2",
-      "test.png",
+      "/Users/nathan/Desktop/Capture\ d’écran\ 2022-10-31\ à\ 17.42.40.png ",
       "https://read.bookcreator.com/K5pvkfQy5BbPNtOEhAXgI70Psei2/R4pOnl-4S5KRHeKToP3Hhw",
       1
-    );
+    ));
+    console.log(books);
     return books;
   } else {
     try {

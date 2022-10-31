@@ -112,3 +112,8 @@ html {
   text-align: center;
 }
 /*# sourceMappingURL=index.css.map */
+
+a, u {
+  text-decoration: none;
+  color: black;
+}
