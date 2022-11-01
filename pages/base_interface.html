@@ -8,7 +8,6 @@
 
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="../css/bootstrap.min.css" />
-    
   </head>
 
   <body>
@@ -183,12 +182,13 @@
                   width="16"
                   height="16"
                   fill="currentColor"
-                  class="bi bi-book-fill"
+                  class="bi bi-file-music-fill"
                   viewBox="0 0 16 16"
                 >
                   <path
-                    d="M8 1.783C7.015.936 5.587.81 4.287.94c-1.514.153-3.042.672-3.994 1.105A.5.5 0 0 0 0 2.5v11a.5.5 0 0 0 .707.455c.882-.4 2.303-.881 3.68-1.02 1.409-.142 2.59.087 3.223.877a.5.5 0 0 0 .78 0c.633-.79 1.814-1.019 3.222-.877 1.378.139 2.8.62 3.681 1.02A.5.5 0 0 0 16 13.5v-11a.5.5 0 0 0-.293-.455c-.952-.433-2.48-.952-3.994-1.105C10.413.809 8.985.936 8 1.783z"
+                    d="M1.5 2A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h.191l1.862-3.724A.5.5 0 0 1 4 10h8a.5.5 0 0 1 .447.276L14.31 14h.191a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 14.5 2h-13ZM4 7a1 1 0 1 1 0-2 1 1 0 0 1 0 2Zm8 0a1 1 0 1 1 0-2 1 1 0 0 1 0 2ZM6 6a1 1 0 0 1 1-1h2a1 1 0 0 1 0 2H7a1 1 0 0 1-1-1Z"
                   />
+                  <path d="m13.191 14-1.5-3H4.309l-1.5 3h10.382Z" />
                 </svg>
                 Histoires</a
               >
@@ -215,21 +215,17 @@
               >
             </li>
             <li>
-              <a
-                id="booksButton"
-                href="#"
-                class="btn btn-outline-primary me-2"
-              >
+              <a id="booksButton" href="#" class="btn btn-outline-primary me-2">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   width="16"
                   height="16"
                   fill="currentColor"
-                  class="bi bi-file-music-fill"
+                  class="bi bi-book-fill"
                   viewBox="0 0 16 16"
                 >
                   <path
-                    d="M12 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2zm-.5 4.11v1.8l-2.5.5v5.09c0 .495-.301.883-.662 1.123C7.974 12.866 7.499 13 7 13c-.5 0-.974-.134-1.338-.377-.36-.24-.662-.628-.662-1.123s.301-.883.662-1.123C6.026 10.134 6.501 10 7 10c.356 0 .7.068 1 .196V4.41a1 1 0 0 1 .804-.98l1.5-.3a1 1 0 0 1 1.196.98z"
+                    d="M8 1.783C7.015.936 5.587.81 4.287.94c-1.514.153-3.042.672-3.994 1.105A.5.5 0 0 0 0 2.5v11a.5.5 0 0 0 .707.455c.882-.4 2.303-.881 3.68-1.02 1.409-.142 2.59.087 3.223.877a.5.5 0 0 0 .78 0c.633-.79 1.814-1.019 3.222-.877 1.378.139 2.8.62 3.681 1.02A.5.5 0 0 0 16 13.5v-11a.5.5 0 0 0-.293-.455c-.952-.433-2.48-.952-3.994-1.105C10.413.809 8.985.936 8 1.783z"
                   />
                 </svg>
                 Livres</a
@@ -241,7 +237,13 @@
           </ul>
 
           <div class="col-md-3 text-end">
-            <button type="button" class="btn btn-outline-dark me-2" hidden>
+            <button
+              type="button"
+              class="btn btn-outline-dark me-2"
+              data-bs-toggle="modal"
+              data-bs-target="#settingsModal"
+              id="settingsButton"
+            >
               <svg
                 width="16"
                 height="16"
@@ -272,7 +274,6 @@
       </div>
     </header>
 
-
     <!-- <div style="background-color: #0e538c">
       <iframe
         id="contentFrame"
@@ -282,6 +283,57 @@
         >
       </iframe>
     </div> -->
+
+    <!--Settings Modal-->
+    <div
+      class="modal fade"
+      id="settingsModal"
+      role="dialog"
+      tabindex="-1"
+      data-backdrop="false"
+      aria-hidden="true"
+      data-bs-backdrop="static"
+    >
+      <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Accéder aux Réglages</h5>
+          </div>
+          <div class="modal-body">
+            <form>
+              <div class="form-group">
+                <label class="col-form-label"
+                  >Veuillez entrez le code suivant en chiffres pour accéder aux
+                  réglages de l'application : </label
+                ><label class="col-form-label text-primary text-uppercase" id="settingsCodeLabel">Code Here</label>
+                <input type="text" class="form-control" id="settingsCodeInput" />
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-primary"
+              data-bs-toggle="modal"
+              id="cancelSettingsButton"
+              data-bs-target="#settingsModal"
+            >
+              Annuler
+            </button>
+            <button
+              type="button"
+              class="btn btn-primary"
+              id="accesSettingsButton"
+              data-bs-toggle="modal"
+              data-bs-target="#settingsModal"
+              disabled
+            >
+              Accéder aux réglages
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <!-- Exit Modal -->
     <div

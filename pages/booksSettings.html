@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
+    <meta http-equiv="Content-Security-Policy" content="script-src 'self'" />
+    <link href="../css/index.css" rel="stylesheet" />
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="../css/bootstrap.min.css" />
+  </head>
+
+  <body>
+    <div class="row h-100 justify-content-center align-items-center">
+      <div class = "title px-5 mt-3"><h1>Ajouter un lien Web</h1></div>
+      <div class="px-5 mt-3">
+        <label for="inputName" class="form-label">Nom du liens</label>
+        <input
+          type="text"
+          class="form-control"
+          id="nameInput"
+          placeholder="Le loup et les 7 chevreaux"
+        />
+      </div>
+      <div class="px-5 mt-3">
+        <label for="inputLink" class="form-label">Liens web</label>
+        <input
+          type="text"
+          class="form-control"
+          id="linkInput"
+          placeholder="https://www.example.com/"
+        />
+      </div>
+      <div class="px-5 mt-3">
+        <label for="formFile" class="form-label"
+          >Choisissez une image pour le liens
+        </label>
+        <input
+          class="form-control"
+          type="file"
+          id="imageInput"
+          accept=".bmp, .gif, .jpg, .jpeg, .png, .webp"
+        />
+      </div>
+      <div class="px-5 mt-3">
+        <button type="button" class="btn btn-primary" id="addButton">Ajouter</button>
+      </div>
+    </div>
+    <div class="row h-100 justify-content-center align-items-center">
+      <div class = "title px-5 mt-3"><h1>Supprimer un lien web</h1></div>
+      <div class="px-5 mt-3">
+        <label for="formFile" class="form-label"
+          >Choisissez le lien à supprimer
+        </label>
+        <select class="form-select" aria-label="Default select example" id = "selectElement">
+          <option selected value = -1>Choisissez le liens dans le menu</option>
+        </select>
+      </div>
+      <div class="px-5 mt-3">
+        <button type="button" class="btn btn-danger" id="delButton">Supprimer</button>
+        <button type="button" class="btn btn-outline-primary" id="cancelButton">Annuler</button>
+      </div>
+    </div>
+    <script src="../renderers/booksSettings.js"></script>
+    <!-- <script src="../bootstrap.bundle.min.js"></script> -->
+  </body>
+</html>

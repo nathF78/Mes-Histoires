@@ -5,35 +5,87 @@ const musicsButton = document.getElementById("musicsButton");
 const booksButton = document.getElementById("booksButton");
 const albums = document.getElementById("albums");
 const cancelCloseButton = document.getElementById("cancelCloseButton");
+const accessSettingsButton = document.getElementById("accesSettingsButton");
+const cancelSettingsButton = document.getElementById("cancelSettingsButton");
+const settingsCodeLabel = document.getElementById("settingsCodeLabel");
+const settingsCodeInput = document.getElementById("settingsCodeInput");
 const closeButton = document.getElementById("confirmClose");
 const counter = document.getElementById("counter");
-var currentAlbum = -1;
+const settingsButton = document.getElementById("settingsButton");
+const settingsCode =
+  getRandomInt() +
+  "" +
+  getRandomInt() +
+  "" +
+  getRandomInt() +
+  "" +
+  getRandomInt();
+const textCode = [
+  "zero",
+  "un",
+  "deux",
+  "trois",
+  "quatre",
+  "cinq",
+  "six",
+  "sept",
+  "huit",
+  "neuf",
+];
 
-function Storie(name, audio, image, path, id) {
-  this.name = name;
-  this.audio = audio;
-  this.image = image;
-  this.path = path;
-  this.id = id;
+function Content(page, settings) {
+  this.page = page;
+  this.settings = settings;
 }
 
-//placeUi();
+var currentContent = new Promise((resolve, reject) => {
+  resolve(window.electronAPI.getCurrentContent());
+});
 
-//Les boutons sprincipaux 
+currentContent.then((value) => {
+  if (value.page == "stories") {
+    storiesButton.classList.add("active");
+    musicsButton.classList.remove("active");
+    booksButton.classList.remove("active");
+    settingsButton.disabled = false;
+  } else if (value.page == "musics") {
+    storiesButton.classList.remove("active");
+    musicsButton.classList.add("active");
+    booksButton.classList.remove("active");
+    settingsButton.disabled = false;
+  } else if (value.page == "books") {
+    storiesButton.classList.remove("active");
+    musicsButton.classList.remove("active");
+    booksButton.classList.add("active");
+    settingsButton.disabled = false;
+  }
+  currentContent = value;
+});
+
+settingsCodeLabel.innerHTML =
+  textCode[settingsCode[0]] +
+  " " +
+  textCode[settingsCode[1]] +
+  " " +
+  textCode[settingsCode[2]] +
+  " " +
+  textCode[settingsCode[3]];
+
+
+//Les boutons sprincipaux
 musicsButton.addEventListener("click", () => {
-  window.electronAPI.setContent("musics");
+  console.log("musics clicked");
+  window.electronAPI.setCurrentContent(new Content("musics", false));
 });
 
 storiesButton.addEventListener("click", () => {
-  window.electronAPI.setContent("stories");
+  console.log("stories clicked");
+  window.electronAPI.setCurrentContent(new Content("stories", false));
 });
 
 booksButton.addEventListener("click", () => {
-  window.electronAPI.setContent("books");
-});
-
-window.addEventListener("scroll", () => {
-  //console.log(scroll);
+  console.log("books clicked");
+  window.electronAPI.setCurrentContent(new Content("books", false));
 });
 
 closeButton.addEventListener("click", () => {
@@ -51,11 +103,15 @@ closeButton.addEventListener("click", () => {
 });
 
 askToQuitButton.addEventListener("click", () => {
-  window.electronAPI.askToQuit(true);
+  window.electronAPI.showDiagBox(true);
 });
 
 cancelCloseButton.addEventListener("click", () => {
-  window.electronAPI.askToQuit(false);
+  window.electronAPI.showDiagBox(false);
+});
+
+cancelSettingsButton.addEventListener("click", () => {
+  window.electronAPI.showDiagBox(false);
 });
 
 // function placeUi() {
@@ -65,19 +121,71 @@ cancelCloseButton.addEventListener("click", () => {
 //     window.innerHeight - document.getElementById("header").offsetHeight + "px";
 // }
 
-window.electronAPI.onChooseContent((_event, value) => {
-  if (value == "stories") {
+settingsButton.addEventListener("click", () => {
+  settingsCodeInput.value = "";
+  accessSettingsButton.disabled = true;
+  window.electronAPI.showDiagBox(true);
+});
+
+accessSettingsButton.addEventListener("click", () => {
+  window.electronAPI.showDiagBox(false);
+  settingsButton.disabled = true;
+  window.electronAPI.setCurrentContent(new Content(currentContent.page, true));
+});
+
+// window.electronAPI.onChooseContent((_event, value) => {
+//   if (value == "stories") {
+//     storiesButton.classList.add("active");
+//     musicsButton.classList.remove("active");
+//     booksButton.classList.remove("active");
+//     settingsButton.disabled = false;
+//   } else if (value == "musics") {
+//     storiesButton.classList.remove("active");
+//     musicsButton.classList.add("active");
+//     booksButton.classList.remove("active");
+//     settingsButton.disabled = false;
+//   } else {
+//     storiesButton.classList.remove("active");
+//     musicsButton.classList.remove("active");
+//     booksButton.classList.add("active");
+//     settingsButton.disabled = false;
+//   }
+// });
+
+window.electronAPI.onUpdateContent((_event, content) => {
+  currentContent = content;
+  if (content.page == "stories") {
+    console.log("content changed to stories");
     storiesButton.classList.add("active");
     musicsButton.classList.remove("active");
     booksButton.classList.remove("active");
-  } else if (value == "musics") {
+  } else if (content.page == "musics") {
+    console.log("content changed to musics");
     storiesButton.classList.remove("active");
     musicsButton.classList.add("active");
     booksButton.classList.remove("active");
-  }
-  else {
+  } else if (content.page == "books") {
+    console.log("content changed to books");
     storiesButton.classList.remove("active");
     musicsButton.classList.remove("active");
     booksButton.classList.add("active");
+  }
+  if (content.settings) {
+    settingsButton.disabled = true;
+  } else {
+    settingsButton.disabled = false;
+  }
+});
+
+function getRandomInt() {
+  return Math.floor(Math.random() * 9);
+}
+
+settingsCodeInput.addEventListener("input", (updateValue) => {
+  if (settingsCodeInput.value == settingsCode) {
+    console.log("code is correct");
+    accessSettingsButton.disabled = false;
+  } else {
+    accessSettingsButton.disabled = true;
   }
 });

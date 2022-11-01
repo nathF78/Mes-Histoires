@@ -32,24 +32,32 @@ const audioCompatibility = [
 ];
 const imageCompatibility = [".bmp", ".gif", ".jpg", ".jpeg", ".png", ".webp"];
 
-var currentContent = "stories";
+var books = Array();
 
 const homePath = app.getPath("home");
 var librariePath = path.join(homePath, "Mes Histoires");
 
-function Element(name, audio, image, path, id) {
+function Element(name, audio, image, path, id, type) {
   this.name = name;
   this.audio = audio;
   this.image = image;
   this.path = path;
   this.id = id;
+  this.type = type;
 }
+
+function Content(page, settings) {
+  this.page = page;
+  this.settings = settings;
+}
+
+currentContent = new Content("stories", false);
 
 function createWindow() {
   const win = new BrowserWindow({
     width: 800,
     height: 600,
-    kiosk: true, //fullscreen
+    //kiosk: true, //fullscreen
     frame: false,
     icon: __dirname + "icon.ico",
     webPreferences: {
@@ -65,7 +73,7 @@ function createWindow() {
   //Page du contenu
   view = new BrowserView({
     webPreferences: {
-      devTools: true,
+      //devTools: true,
       contextIsolation: true,
       preload: path.join(app.getAppPath(), "preload.js"),
     },
@@ -83,8 +91,8 @@ function createWindow() {
   view.webContents.setUserAgent(
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.92 Safari/537.36"
   );
-  getMainWindow().webContents.send("choose-content", currentContent);
-  if (currentContent == "books") {
+  getMainWindow().webContents.send("choose-content", currentContent.page);
+  if (currentContent.page == "books") {
     view.webContents.loadFile("pages/books.html");
   } else {
     view.webContents.loadFile("pages/storiesAndMusics.html");
@@ -93,20 +101,19 @@ function createWindow() {
 }
 
 app.whenReady().then(() => {
-  ipcMain.on("set-title", handleSetTitle);
   ipcMain.handle("openFile", handleFileOpen);
-  ipcMain.handle("get-current-path", handleGetcurrentContent);
+  ipcMain.handle("get-current-content", handleGetCurrentContent);
+  ipcMain.on("set-current-content", handleSetCurrentContent);
   ipcMain.handle("get-elements", handleGetElements);
-  ipcMain.handle("get-test", handleGetTest);
-  ipcMain.on("ask-to-quit", handleAskToQuit);
-  ipcMain.on("set-current-path", handleSetcurrentContent);
-  ipcMain.on("set-content", handleSetContent);
+  ipcMain.on("show-diag-box", handleShowDiagBox);
+  ipcMain.on("add-element", handleAddElement);
+  ipcMain.on("delete-element", handleDeleteElement);
   ipcMain.on("require-init", init);
   ipcMain.on("close", handleClose);
   init();
   createWindow();
   getMainWindow().webContents.once("dom-ready", () => {
-    getMainWindow().webContents.send("choose-content", currentContent);
+    getMainWindow().webContents.send("choose-content", currentContent.page);
   });
   app.on("activate", () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
@@ -117,31 +124,16 @@ app.on("window-all-closed", () => {
   if (process.platform !== "darwin") app.quit();
 });
 
-function handleSetTitle(event, title) {
-  const webContents = event.sender;
-  const win = BrowserWindow.fromWebContents(webContents);
-  win.setTitle(title);
-}
 
 function handleChooseStorie(event, id) {
-  console.log(currentContent + id + " choosed");
-}
-
-function handleGetcurrentContent(event) {
-  return currentContent;
+  console.log(currentContent.page + id + " choosed");
 }
 
 function handleGetElements(event) {
-  return initElements(currentContent);
+  return initElements(currentContent.page);
 }
 
-function handleGetTest(event) {
-  console.log("test");
-}
-function handleSetcurrentContent(event, newPath) {
-  currentContent = newPath;
-  console.log("currentContent changed to " + currentContent);
-}
+
 async function handleFileOpen() {
   const { canceled, filePaths } = await dialog.showOpenDialog();
   if (canceled) {
@@ -160,11 +152,6 @@ function init() {
     console.log(stories);
     console.log("\nLes musiques suivantes ont étés chargées :\n");
     console.log(musics);
-
-    // for (let i = 0; i < stories.length; i++) {
-    //   console.log("loading " + stories[i].name)
-    //   //getMainWindow().webContents.send('add-storie', stories[i])
-    // }
   } else {
     getMainWindow().setAlwaysOnTop(false);
     id = dialog.showMessageBoxSync(getMainWindow(), {
@@ -202,22 +189,7 @@ function initElements(element) {
   //génération du tableau des histoires
 
   if (element == "books") {
-    let books = Array();
-
-    books.push(new Element(
-      "Le Loup et les 7 chevraux",
-      "test",
-      "/Users/nathan/Desktop/Capture\ d’écran\ 2022-10-31\ à\ 17.42.40.png",
-      "https://read.bookcreator.com/K5pvkfQy5BbPNtOEhAXgI70Psei2/R4pOnl-4S5KRHeKToP3Hhw",
-      0
-    ));
-    books.push(new Element(
-      "Le Loup et les 7 chevraux 2",
-      "test2",
-      "/Users/nathan/Desktop/Capture\ d’écran\ 2022-10-31\ à\ 17.42.40.png ",
-      "https://read.bookcreator.com/K5pvkfQy5BbPNtOEhAXgI70Psei2/R4pOnl-4S5KRHeKToP3Hhw",
-      1
-    ));
+    books = readFileToObject("books.json");
     console.log(books);
     return books;
   } else {
@@ -229,7 +201,7 @@ function initElements(element) {
         elements[i].name = elementName;
         elements[i].path = path.join(librariePath, element, elementName);
         elements[i].id = i;
-
+        elements[i].type = "storyMusic";
         try {
           elements[i].audio = findAudio(elements[i].path);
         } catch (e) {
@@ -253,7 +225,7 @@ function readDirectory(directory) {
   //lit les histoires
   completePath = path.join(librariePath, directory);
   if (fs.existsSync(completePath)) {
-    // Do something }
+    //Do something }
     let files = fs.readdirSync(completePath);
     files = files.filter(function (f) {
       return f !== ".DS_Store";
@@ -323,19 +295,86 @@ function handleClose() {
 }
 
 function handleSetContent(event, content) {
-  currentContent = content;
-  getMainWindow().webContents.send("choose-content", currentContent);
-  if (currentContent == "books") {
+  if (content == "booksSettings") {
+    getViewContent().loadFile("pages/booksSettings.html");
+  } else if (content == "books") {
     getViewContent().loadFile("pages/books.html");
+    currentContent.page = content;
   } else {
     view.webContents.loadFile("pages/storiesAndMusics.html");
+    currentContent.page = content;
   }
+  getMainWindow().webContents.send("choose-content", currentContent.page);
 }
 
-function handleAskToQuit(event, value) {
+function handleShowDiagBox(event, value) {
   if (value) {
     getMainWindow().setBrowserView(null);
   } else {
     getMainWindow().setBrowserView(view);
   }
+}
+
+function handleAddElement(event, element) {
+  if (element.type == "book") {
+    for (i = 0; i < books.length; i++) {
+      books[i].id = i;
+    }
+    element.id = books.length;
+    books.push(element);
+    writeObjectToFile("books.json", books);
+  } else {
+    console.log("you should not be here yet ?!");
+  }
+}
+
+function handleDeleteElement(event, type, id) {
+  if (type == "book") {
+    books.splice(id, 1);
+    for (i = 0; i < books.length; i++) {
+      books[i].id = i;
+    }
+    writeObjectToFile("books.json", books);
+  } else {
+    console.log("you should not be here yet ?!");
+  }
+}
+
+function handleGetCurrentContent() {
+  return currentContent;
+}
+
+function handleSetCurrentContent(event, content) {
+  currentContent = content;
+  console.log(
+    "current content is now : " +
+      currentContent.page +
+      " with settings : " +
+      currentContent.settings
+  );
+  if (currentContent.settings) {
+    if (currentContent.page == "books") {
+      getViewContent().loadFile("pages/booksSettings.html");
+    } else if (
+      currentContent.page == "stories" ||
+      currentContent.page == "musics"
+    ) {
+      getViewContent().loadFile("pages/storiesAndMusicsSettings.html");
+    }
+  } else {
+    if (currentContent.page == "books") {
+      getViewContent().loadFile("pages/books.html");
+    } else if (currentContent.page == "stories" || currentContent.page == "musics") {
+      getViewContent().loadFile("pages/storiesAndMusics.html");
+    }
+  }
+  getMainWindow().webContents.send("update-current-content", currentContent);
+}
+
+ function readFileToObject(file) {
+  return JSON.parse(fs.readFileSync(file));
+}
+
+function writeObjectToFile(file, object) {
+  fs.writeFileSync(file, JSON.stringify(object));
 }
