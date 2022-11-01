@@ -18,7 +18,7 @@ function Content(page, settings) {
   this.settings = settings;
 }
 
-const books = new Promise((resolve, reject) => {
+var books = new Promise((resolve, reject) => {
   resolve(window.electronAPI.getElements());
 });
 

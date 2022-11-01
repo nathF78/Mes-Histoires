@@ -12,9 +12,11 @@
 
   <body>
     <div class="row h-100 justify-content-center align-items-center">
-      <div class = "title px-5 mt-3"><h1>Ajouter un lien Web</h1></div>
+      <div class="title px-5 mt-3"><h1 id="title">Ajouter un élément</h1></div>
       <div class="px-5 mt-3">
-        <label for="inputName" class="form-label">Nom du liens</label>
+        <label for="inputName" class="form-label" id="nameLabel"
+          >Nom de l'élément</label
+        >
         <input
           type="text"
           class="form-control"
@@ -22,46 +24,58 @@
           placeholder="Le loup et les 7 chevreaux"
         />
       </div>
-      <div class="px-5 mt-3">
-        <label for="inputLink" class="form-label">Liens web</label>
-        <input
-          type="text"
-          class="form-control"
-          id="linkInput"
-          placeholder="https://www.example.com/"
-        />
-      </div>
-      <div class="px-5 mt-3">
-        <label for="formFile" class="form-label"
-          >Choisissez une image pour le liens
-        </label>
-        <input
-          class="form-control"
-          type="file"
-          id="imageInput"
-          accept=".bmp, .gif, .jpg, .jpeg, .png, .webp"
-        />
-      </div>
-      <div class="px-5 mt-3">
-        <button type="button" class="btn btn-primary" id="addButton">Ajouter</button>
-      </div>
+    </div>
+    <div class="px-5 mt-3">
+      <label id="imageLabel" for="formFile" class="form-label"
+        >Choisissez une image pour l'élément
+      </label>
+      <input
+        class="form-control"
+        type="file"
+        id="imageInput"
+        accept=".bmp, .gif, .jpg, .jpeg, .png, .webp"
+      />
+    </div>
+    <div class="px-5 mt-3">
+      <label id="audioLabel" for="formFile" class="form-label"
+        >Choisissez un fichier audio pour l'élément
+      </label>
+      <input
+        class="form-control"
+        type="file"
+        id="audioInput"
+        accept=".3gp, .avi, .mov, .mp4, .m4v, .m4a,.mp3,.mkv, .ogv,  .ogm,.ogg,.oga,.webm, .wav"
+      />
+    </div>
+    <div class="px-5 mt-3">
+      <button type="button" class="btn btn-primary" id="addButton">
+        Ajouter
+      </button>
     </div>
     <div class="row h-100 justify-content-center align-items-center">
-      <div class = "title px-5 mt-3"><h1>Supprimer un lien web</h1></div>
+      <div class="title px-5 mt-3"><h1 id="delTitle">Supprimer un lien web</h1></div>
       <div class="px-5 mt-3">
-        <label for="formFile" class="form-label"
-          >Choisissez le lien à supprimer
+        <label id="delLabel" for="formFile" class="form-label"
+          >Choisissez l'élément à supprimer
         </label>
-        <select class="form-select" aria-label="Default select example" id = "selectElement">
-          <option selected value = -1>Choisissez le liens dans le menu</option>
+        <select
+          class="form-select"
+          aria-label="Default select example"
+          id="selectElement"
+        >
+          <option selected value="-1">Choisissez l'élément dans le menu</option>
         </select>
       </div>
       <div class="px-5 mt-3">
-        <button type="button" class="btn btn-danger" id="delButton">Supprimer</button>
-        <button type="button" class="btn btn-outline-primary" id="cancelButton">Annuler</button>
+        <button type="button" class="btn btn-danger" id="delButton">
+          Supprimer
+        </button>
+        <button type="button" class="btn btn-outline-primary" id="cancelButton">
+          Annuler
+        </button>
       </div>
     </div>
-    <script src="../renderers/booksSettings.js"></script>
+    <script src="../renderers/storiesAndMusicsSettings.js"></script>
     <!-- <script src="../bootstrap.bundle.min.js"></script> -->
   </body>
 </html>

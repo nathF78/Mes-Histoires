@@ -150,7 +150,9 @@ function init() {
     let musics = initElements("musics");
     console.log("\nLes histoires suivantes ont étés chargées :\n");
     console.log(stories);
+    writeObjectToFile("stories.json", stories);
     console.log("\nLes musiques suivantes ont étés chargées :\n");
+    writeObjectToFile("musics.json", musics);
     console.log(musics);
   } else {
     getMainWindow().setAlwaysOnTop(false);
