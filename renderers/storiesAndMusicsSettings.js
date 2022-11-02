@@ -59,22 +59,22 @@ addButton.addEventListener("click", () => {
   ) {
     element = new Element(
       document.getElementById("nameInput").value,
-      document.getElementById("audioInput").value,
+      document.getElementById("audioInput").files[0].path,
       document.getElementById("imageInput").files[0].path,
-      document.getElementById("linkInput").value,
+      "",
       -1,
       "element"
     );
     console.log(element);
     window.electronAPI.addElement(element);
-    window.electronAPI.setCurrentContent(new Content("books", false));
+    window.electronAPI.setCurrentContent(new Content(currentContent.page, true));
   } else {
     alert("Veuillez remplir tous les champs");
   }
 });
 
 cancelButton.addEventListener("click", () => {
-  window.electronAPI.setCurrentContent(new Content(currentContent.page, false));
+  window.electronAPI.setCurrentContent(new Content(currentContent.page, fale));
 });
 
 selectElement.addEventListener("change", () => {
@@ -83,8 +83,8 @@ selectElement.addEventListener("change", () => {
 
 delButton.addEventListener("click", () => {
     if (selectElement.value != -1) {
-        window.electronAPI.deleteElement(currentContent.page,selectElement.value);
-        window.electronAPI.setCurrentContent(new Content(currentContent.page, false));
+        window.electronAPI.deleteElement(selectElement.value);
+        window.electronAPI.setCurrentContent(new Content(currentContent.page, true));
     } else {
         alert("Veuillez sélectionner un élément");
     }

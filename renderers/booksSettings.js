@@ -45,7 +45,7 @@ addButton.addEventListener("click", () => {
     );
     console.log(element);
     window.electronAPI.addElement(element);
-    window.electronAPI.setCurrentContent(new Content("books", false));
+    window.electronAPI.setCurrentContent(new Content("books", true));
   } else {
     alert("Veuillez remplir tous les champs");
   }
@@ -61,8 +61,8 @@ selectElement.addEventListener("change", () => {
 
 delButton.addEventListener("click", () => {
     if (selectElement.value != -1) {
-        window.electronAPI.deleteElement("book",selectElement.value);
-        window.electronAPI.setCurrentContent(new Content("books", false));
+        window.electronAPI.deleteElement(selectElement.value);
+        window.electronAPI.setCurrentContent(new Content("books", true));
     } else {
         alert("Veuillez sélectionner un élément");
     }

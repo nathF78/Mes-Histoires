@@ -33,6 +33,8 @@ const audioCompatibility = [
 const imageCompatibility = [".bmp", ".gif", ".jpg", ".jpeg", ".png", ".webp"];
 
 var books = Array();
+var stories = Array();
+var musics = Array();
 
 const homePath = app.getPath("home");
 var librariePath = path.join(homePath, "Mes Histoires");
@@ -108,9 +110,7 @@ app.whenReady().then(() => {
   ipcMain.on("show-diag-box", handleShowDiagBox);
   ipcMain.on("add-element", handleAddElement);
   ipcMain.on("delete-element", handleDeleteElement);
-  ipcMain.on("require-init", init);
   ipcMain.on("close", handleClose);
-  init();
   createWindow();
   getMainWindow().webContents.once("dom-ready", () => {
     getMainWindow().webContents.send("choose-content", currentContent.page);
@@ -124,7 +124,6 @@ app.on("window-all-closed", () => {
   if (process.platform !== "darwin") app.quit();
 });
 
-
 function handleChooseStorie(event, id) {
   console.log(currentContent.page + id + " choosed");
 }
@@ -132,7 +131,6 @@ function handleChooseStorie(event, id) {
 function handleGetElements(event) {
   return initElements(currentContent.page);
 }
-
 
 async function handleFileOpen() {
   const { canceled, filePaths } = await dialog.showOpenDialog();
@@ -143,83 +141,64 @@ async function handleFileOpen() {
   }
 }
 
-function init() {
-  if (fs.existsSync(librariePath)) {
-    // Do something }
-    let stories = initElements("stories");
-    let musics = initElements("musics");
-    console.log("\nLes histoires suivantes ont étés chargées :\n");
-    console.log(stories);
-    writeObjectToFile("stories.json", stories);
-    console.log("\nLes musiques suivantes ont étés chargées :\n");
-    writeObjectToFile("musics.json", musics);
-    console.log(musics);
-  } else {
-    getMainWindow().setAlwaysOnTop(false);
-    id = dialog.showMessageBoxSync(getMainWindow(), {
-      type: "info",
-      buttons: ["Créer la Bibliothèque", "Quitter Mes Histoires"],
-      defaultId: 0,
-      cancelId: 1,
-      title: "Bibliothèque introuvable",
-      message:
-        'La Bibliothèque de Mes Histoires est introuvable. Voulez vous la créer dans \n "' +
-        librariePath +
-        '" ?',
-    });
-    if (id == 1) {
-      exit(0);
-    } else {
-      createLibrary();
-      dialog.showMessageBoxSync(getMainWindow(), {
-        type: "info",
-        buttons: ["Quitter Mes Histoires"],
-        defaultId: 0,
-        title: "Bibliothèque crée avec succès",
-        message:
-          "La Bibliothèque de Mes Histoires à été crée avec succès.\n Vous pouvez maintenant quitter l'application et ajouter vos fichiers dans \n \"" +
-          librariePath +
-          '"',
-      });
-      exit(0);
-    }
-  }
-}
+// function init() {
+//   if (fs.existsSync(librariePath)) {
+//     // Do something }
+//     let stories = initElements("stories");
+//     let musics = initElements("musics");
+//     console.log("\nLes histoires suivantes ont étés chargées :\n");
+//     console.log(stories);
+//     writeObjectToFile("stories.json", stories);
+//     console.log("\nLes musiques suivantes ont étés chargées :\n");
+//     writeObjectToFile("musics.json", musics);
+//     console.log(musics);
+//   } else {
+//     getMainWindow().setAlwaysOnTop(false);
+//     id = dialog.showMessageBoxSync(getMainWindow(), {
+//       type: "info",
+//       buttons: ["Créer la Bibliothèque", "Quitter Mes Histoires"],
+//       defaultId: 0,
+//       cancelId: 1,
+//       title: "Bibliothèque introuvable",
+//       message:
+//         'La Bibliothèque de Mes Histoires est introuvable. Voulez vous la créer dans \n "' +
+//         librariePath +
+//         '" ?',
+//     });
+//     if (id == 1) {
+//       exit(0);
+//     } else {
+//       createLibrary();
+//       dialog.showMessageBoxSync(getMainWindow(), {
+//         type: "info",
+//         buttons: ["Quitter Mes Histoires"],
+//         defaultId: 0,
+//         title: "Bibliothèque crée avec succès",
+//         message:
+//           "La Bibliothèque de Mes Histoires à été crée avec succès.\n Vous pouvez maintenant quitter l'application et ajouter vos fichiers dans \n \"" +
+//           librariePath +
+//           '"',
+//       });
+//       exit(0);
+//     }
+//   }
+// }
 
 //create a tab with the requested elements (stories,musics or books)
 function initElements(element) {
   //génération du tableau des histoires
-
   if (element == "books") {
     books = readFileToObject("books.json");
     console.log(books);
     return books;
-  } else {
-    try {
-      var elements = readDirectory(element);
-      for (let i = 0; i < elements.length; i++) {
-        var elementName = elements[i];
-        elements[i] = new Element();
-        elements[i].name = elementName;
-        elements[i].path = path.join(librariePath, element, elementName);
-        elements[i].id = i;
-        elements[i].type = "storyMusic";
-        try {
-          elements[i].audio = findAudio(elements[i].path);
-        } catch (e) {
-          console.error(e);
-        }
-
-        try {
-          elements[i].image = findImg(elements[i].path);
-        } catch (e) {
-          console.error(e);
-        }
-      }
-      return elements;
-    } catch (e) {
-      console.error(e);
-    }
+  } else if (element == "stories") {
+    stories = readFileToObject("stories.json");
+    console.log(stories);
+    return stories;
+  } else if (element == "musics") {
+    musics = readFileToObject("musics.json");
+    console.log(musics);
+    return musics;
   }
 }
 
@@ -318,27 +297,53 @@ function handleShowDiagBox(event, value) {
 }
 
 function handleAddElement(event, element) {
-  if (element.type == "book") {
+  element.image = toURL(element.image);
+  if (currentContent.page == "books") {
     for (i = 0; i < books.length; i++) {
       books[i].id = i;
     }
     element.id = books.length;
     books.push(element);
     writeObjectToFile("books.json", books);
-  } else {
-    console.log("you should not be here yet ?!");
+  } else if (currentContent.page == "stories") {
+    for (i = 0; i < stories.length; i++) {
+      stories[i].id = i;
+    }
+    element.id = stories.length;
+    element.audio = toURL(element.audio);
+    stories.push(element);
+    writeObjectToFile("stories.json", stories);
+  } else if (currentContent.page == "musics") {
+    for (i = 0; i < musics.length; i++) {
+      musics[i].id = i;
+    }
+    element.id = musics.length;
+    element.audio = toURL(element.audio);
+    musics.push(element);
+    writeObjectToFile("musics.json", musics);
   }
 }
 
-function handleDeleteElement(event, type, id) {
-  if (type == "book") {
+function handleDeleteElement(event, id) {
+  if (currentContent.page == "books") {
     books.splice(id, 1);
     for (i = 0; i < books.length; i++) {
       books[i].id = i;
     }
     writeObjectToFile("books.json", books);
-  } else {
-    console.log("you should not be here yet ?!");
+  } else if (currentContent.page == "stories") {
+    console.log("id est :" + id);
+    stories.splice(id, 1);
+    for (i = 0; i < stories.length; i++) {
+      stories[i].id = i;
+    }
+    writeObjectToFile("stories.json", stories);
+  } else if (currentContent.page == "musics") {
+    musics.splice(id, 1);
+    for (i = 0; i < musics.length; i++) {
+      musics[i].id = i;
+    }
+    writeObjectToFile("musics.json", musics);
   }
 }
 
@@ -366,17 +371,24 @@ function handleSetCurrentContent(event, content) {
   } else {
     if (currentContent.page == "books") {
       getViewContent().loadFile("pages/books.html");
-    } else if (currentContent.page == "stories" || currentContent.page == "musics") {
+    } else if (
+      currentContent.page == "stories" ||
+      currentContent.page == "musics"
+    ) {
       getViewContent().loadFile("pages/storiesAndMusics.html");
     }
   }
   getMainWindow().webContents.send("update-current-content", currentContent);
 }
 
- function readFileToObject(file) {
+function readFileToObject(file) {
   return JSON.parse(fs.readFileSync(file));
 }
 
 function writeObjectToFile(file, object) {
   fs.writeFileSync(file, JSON.stringify(object));
+}
+
+function toURL(path) {
+  return pathToFileURL(path).href;
 }
