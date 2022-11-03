@@ -74,7 +74,7 @@ addButton.addEventListener("click", () => {
 });
 
 cancelButton.addEventListener("click", () => {
-  window.electronAPI.setCurrentContent(new Content(currentContent.page, fale));
+  window.electronAPI.setCurrentContent(new Content(currentContent.page, false));
 });
 
 selectElement.addEventListener("change", () => {

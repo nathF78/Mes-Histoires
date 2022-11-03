@@ -62,6 +62,8 @@ currentContent.then((value) => {
   currentContent = value;
 });
 
+window.electronAPI.setUpdateUi(document.getElementById("header").offsetHeight); //placing the ui
+
 settingsCodeLabel.innerHTML =
   textCode[settingsCode[0]] +
   " " +
@@ -96,7 +98,9 @@ async function getCurrentPath() {
   return await window.electronAPI.getCurrentPath();
 }
 
-//window.addEventListener("resize", placeUi);
+window.addEventListener("resize", () => {
+  window.electronAPI.setUpdateUi(document.getElementById("header").offsetHeight);
+});
 
 closeButton.addEventListener("click", () => {
   window.electronAPI.close();
@@ -128,6 +132,10 @@ settingsButton.addEventListener("click", () => {
 });
 
 accessSettingsButton.addEventListener("click", () => {
+  if (settingsCodeInput.value == settingsCode) {
+    window.electronAPI.setCurrentContent(new Content(currentContent.page, true));
+    window.electronAPI.showDiagBox(false);
+  }
   window.electronAPI.showDiagBox(false);
   settingsButton.disabled = true;
   window.electronAPI.setCurrentContent(new Content(currentContent.page, true));
@@ -187,5 +195,16 @@ settingsCodeInput.addEventListener("input", (updateValue) => {
     accessSettingsButton.disabled = false;
   } else {
     accessSettingsButton.disabled = true;
+  }
+});
+
+//deal with enter press
+settingsCodeInput.addEventListener("keypress", function(event) {
+  // If the user presses the "Enter" key on the keyboard
+  if (event.key === "Enter") {
+    // Cancel the default action, if needed
+    event.preventDefault();
+    // Trigger the button element with a click
+    accessSettingsButton.click();
   }
 });

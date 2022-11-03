@@ -16,6 +16,7 @@ contextBridge.exposeInMainWorld("electronAPI", {
   setTitle: (title) => ipcRenderer.send("set-title", title),
   init: () => ipcRenderer.send("require-init"),
   setCurrentContent: (content) => ipcRenderer.send("set-current-content", content),
+  setUpdateUi: (uiSizes) => ipcRenderer.send("set-update-ui", uiSizes),
   onUpdateContent : (callback) => ipcRenderer.on('update-current-content', callback),
   addElement: (element) => ipcRenderer.send("add-element", element),
   deleteElement: (id) => ipcRenderer.send("delete-element", id),

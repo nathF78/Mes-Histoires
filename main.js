@@ -14,6 +14,7 @@ const { initial } = require("lodash");
 const { pathToFileURL } = require("node:url"); //pour les utilisateurs de windows...
 const { exit } = require("process");
 var view;
+var win;
 const audioCompatibility = [
   ".3gp",
   ".avi",
@@ -55,11 +56,29 @@ function Content(page, settings) {
 
 currentContent = new Content("stories", false);
 
+function getAppDataPath() {
+  switch (process.platform) {
+    case "darwin": {
+      return path.join(process.env.HOME, "Library", "Application Support", "MesHistoires");
+    }
+    case "win32": {
+      return path.join(process.env.APPDATA, "MesHistoires");
+    }
+    case "linux": {
+      return path.join(process.env.HOME, ".MesHistoires");
+    }
+    default: {
+      console.log("Unsupported platform!");
+      process.exit(1);
+    }
+  }
+}
+
 function createWindow() {
-  const win = new BrowserWindow({
+    win = new BrowserWindow({
     width: 800,
     height: 600,
-    //kiosk: true, //fullscreen
+    kiosk: true, //fullscreen
     frame: false,
     icon: __dirname + "icon.ico",
     webPreferences: {
@@ -89,7 +108,7 @@ function createWindow() {
     width: win.getSize()[0],
     height: win.getSize()[1] - 90,
   });
-  view.webContents.openDevTools();
+  //view.webContents.openDevTools();
   view.webContents.setUserAgent(
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.92 Safari/537.36"
   );
@@ -106,6 +125,7 @@ app.whenReady().then(() => {
   ipcMain.handle("openFile", handleFileOpen);
   ipcMain.handle("get-current-content", handleGetCurrentContent);
   ipcMain.on("set-current-content", handleSetCurrentContent);
+  ipcMain.on("set-update-ui", handleUpdateUi);
   ipcMain.handle("get-elements", handleGetElements);
   ipcMain.on("show-diag-box", handleShowDiagBox);
   ipcMain.on("add-element", handleAddElement);
@@ -382,13 +402,27 @@ function handleSetCurrentContent(event, content) {
 }
 
 function readFileToObject(file) {
-  return JSON.parse(fs.readFileSync(file));
+  if (fs.existsSync(path.join(getAppDataPath() ,file))) {
+    return JSON.parse(fs.readFileSync(path.join(getAppDataPath() ,file)));
+  }
+  else {
+    return [];
+  }
 }
 
 function writeObjectToFile(file, object) {
-  fs.writeFileSync(file, JSON.stringify(object));
+  fs.writeFileSync(path.join(getAppDataPath() ,file), JSON.stringify(object));
 }
 
 function toURL(path) {
   return pathToFileURL(path).href;
+}
+
+function handleUpdateUi(event, uiSizes) {
+  view.setBounds({
+    x: 0,
+    y: uiSizes,
+    width: win.getSize()[0],
+    height: win.getSize()[1] - uiSizes,
+  });
 }

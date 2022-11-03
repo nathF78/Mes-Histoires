@@ -11,8 +11,8 @@
   </head>
 
   <body>
-    <div class="row h-100 justify-content-center align-items-center">
-      <div class = "title px-5 mt-3"><h1>Ajouter un lien Web</h1></div>
+    <div>
+      <div class="title px-3 mt-5"><h1>Ajouter un lien Web</h1></div>
       <div class="px-5 mt-3">
         <label for="inputName" class="form-label">Nom du lien</label>
         <input
@@ -43,22 +43,32 @@
         />
       </div>
       <div class="px-5 mt-3">
-        <button type="button" class="btn btn-primary" id="addButton">Ajouter</button>
+        <button type="button" class="btn btn-primary" id="addButton">
+          Ajouter
+        </button>
       </div>
     </div>
-    <div class="row h-100 justify-content-center align-items-center">
-      <div class = "title px-5 mt-3"><h1>Supprimer un lien web</h1></div>
+    <div>
+      <div class="title px-3 mt-5"><h1>Supprimer un lien web</h1></div>
       <div class="px-5 mt-3">
         <label for="formFile" class="form-label"
           >Choisissez le lien à supprimer
         </label>
-        <select class="form-select" aria-label="Default select example" id = "selectElement">
-          <option selected value = -1>Choisissez le liens dans le menu</option>
+        <select
+          class="form-select"
+          aria-label="Default select example"
+          id="selectElement"
+        >
+          <option selected value="-1">Choisissez le liens dans le menu</option>
         </select>
       </div>
       <div class="px-5 mt-3">
-        <button type="button" class="btn btn-danger" id="delButton">Supprimer</button>
-        <button type="button" class="btn btn-outline-primary" id="cancelButton">Annuler</button>
+        <button type="button" class="btn btn-danger" id="delButton">
+          Supprimer
+        </button>
+        <button type="button" class="btn btn-outline-primary float-right" id="cancelButton">
+          Terminer
+        </button>
       </div>
     </div>
     <script src="../renderers/booksSettings.js"></script>
